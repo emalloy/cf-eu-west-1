@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -o errexit
-set -x
 
 
 for y in aws jq; do
