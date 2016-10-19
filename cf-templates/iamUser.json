@@ -11,7 +11,11 @@
       "Type": "String"
     },
     "ProjectName": {
-      "Description": "Supply the ProjectName you wish to assign in the iam policy for this user",
+      "Description": "Supply the ProjectName used in identifying the s3 bucket",
+      "Type": "String"
+    },
+    "TicketNumber": {
+      "Description": "Supply the TicketNumber that originated this request. I.e. PO-xxx",
       "Type": "String"
     }
   },
@@ -28,6 +32,10 @@
             "Key": "Project",
             "Value": {
               "Ref": "ProjectName"
+            },
+            "Key": "Originating-Ticket-Number",
+            "Value": {
+              "Ref": "TicketNumber"
             }
           }
         ]
@@ -37,10 +45,10 @@
           "Fn::Join": [
             "",
             [
-              "Bucket for",
+              "Bucket",
               {
                 "Ref": "BucketName"
-              }
+              },"For",{ "Ref": "ProjectName"}, "Originated by",{ "Ref": "TicketNumber"}
             ]
           ]
         }
@@ -96,7 +104,6 @@
         ]
       }
     },
-
     "S3UserAccessKey": {
       "Type": "AWS::IAM::AccessKey",
       "Properties": {
