@@ -8,6 +8,7 @@ translate terraform declaration to cloudformation
     * iam user
       * inline iam policy granting perms to bucket
    * iam access keypair
+
 ### return
    * iam access key
    * iam secret key
