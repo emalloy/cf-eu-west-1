@@ -1,0 +1,127 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Add an admin group and users.",
+  "Parameters": {
+    "UserName": {
+      "Description": "Supply a username for the purported IAM user",
+      "Type": "String"
+    },
+    "BucketName": {
+      "Description": "Supply the bucketname you wish to assign in the iam policy for this user",
+      "Type": "String"
+    },
+    "ProjectName": {
+      "Description": "Supply the ProjectName you wish to assign in the iam policy for this user",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "PrivateS3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "Private",
+        "BucketName": {
+          "Ref": "BucketName"
+        },
+        "Tags": [
+          {
+            "Key": "Project",
+            "Value": {
+              "Ref": "ProjectName"
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "Comment": {
+          "Fn::Join": [
+            "",
+            [
+              "Bucket for",
+              {
+                "Ref": "BucketName"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "S3User": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "Path": "/system/",
+        "UserName": {
+          "Ref": "UserName"
+        },
+        "Policies": [
+          {
+            "PolicyName": "s3-user-policy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:*"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:s3:::",
+                          {
+                            "Ref": "BucketName"
+                          }
+                        ]
+                      ]
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:s3:::",
+                          {
+                            "Ref": "BucketName"
+                          },
+                          "/*"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "S3UserAccessKey": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": {
+        "UserName": {
+          "Ref": "UserName"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "S3UserAccessKey": {
+      "Description": "The access key for the s3 user",
+      "Value": {
+        "Ref": "S3UserAccessKey"
+      }
+    },
+    "S3UserSecret": {
+      "Description": "The secret key for the s3 user",
+      "Value": {
+        "Fn::GetAtt": [
+          "S3UserAccessKey",
+          "SecretAccessKey"
+        ]
+      }
+    }
+  }
+}
+
+
